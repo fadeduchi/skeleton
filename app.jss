@@ -1,86 +1,74 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// ==============================
+// USER LOCAL (sin login)
+// ==============================
+const userId = crypto.randomUUID();
+console.log("User ID:", userId);
 
-// 🔥 FIREBASE CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyArb2gGmSc1citacNawUP2oWEoC33VcaGk",
-  authDomain: "emiliano-abf5c.firebaseapp.com",
-  projectId: "emiliano-abf5c",
-  storageBucket: "emiliano-abf5c.firebasestorage.app",
-  messagingSenderId: "996718307878",
-  appId: "1:996718307878:web:efc03fe73a9e1679a354e7"
-};
+// ==============================
+// ELEMENTOS UI
+// ==============================
+const chatBox = document.getElementById("chat");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("send");
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
-let messages = [];
-
-// LOGIN
-window.loginGoogle = async () => {
-  await signInWithPopup(auth, provider);
-  document.getElementById("login").classList.add("hidden");
-  document.getElementById("chat").classList.remove("hidden");
-};
-
-window.logout = async () => {
-  await signOut(auth);
-  location.reload();
-};
-
-// UI
-function add(text, cls) {
-  const div = document.createElement("div");
-  div.className = "msg " + cls;
-  div.innerText = text;
-  document.getElementById("messages").appendChild(div);
-  div.scrollIntoView();
+// ==============================
+// FUNCION: AGREGAR MENSAJE A UI
+// ==============================
+function addMessage(role, text) {
+  const msg = document.createElement("div");
+  msg.className = role;
+  msg.textContent = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// IA PROMPT (AUTO IDIOMA)
-const systemPrompt = `
-Detecta automáticamente el idioma del usuario.
+// ==============================
+// FUNCION: ENVIAR MENSAJE A API
+// ==============================
+async function sendMessage(message) {
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId,
+        message
+      })
+    });
 
-Reglas:
-- Responde en el mismo idioma.
-- Si es español → usa tono natural o latino neutro.
-- Si es inglés → slang USA.
-- Si es francés → francés natural.
-- Si es portugués → portugués casual.
-- Respuestas cortas, directas, estilo chat.
-`;
+    const data = await res.json();
+    return data.reply || data.response || "No response";
+  } catch (err) {
+    console.error(err);
+    return "Error connecting to AI";
+  }
+}
 
-// SEND MESSAGE
-window.send = async () => {
-  const input = document.getElementById("input");
-  const text = input.value;
-  if (!text) return;
+// ==============================
+// EVENTO BOTON ENVIAR
+// ==============================
+sendBtn.addEventListener("click", async () => {
+  const message = input.value.trim();
+  if (!message) return;
 
-  add(text, "user");
-  messages.push({ role: "user", content: text });
-
+  addMessage("user", message);
   input.value = "";
 
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messages
-      ]
-    })
-  });
+  addMessage("bot", "Thinking...");
 
-  const data = await res.json();
-  const reply = data.choices?.[0]?.message?.content || "error";
+  const response = await sendMessage(message);
 
-  messages.push({ role: "assistant", content: reply });
-  add(reply, "ai");
-};
+  // reemplazar "Thinking..."
+  chatBox.lastChild.textContent = response;
+});
+
+// ==============================
+// ENTER PARA ENVIAR
+// ==============================
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    sendBtn.click();
+  }
+});

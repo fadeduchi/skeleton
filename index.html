@@ -1,262 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>flesh checker</title>
-
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#000;font-family:Consolas,monospace;color:#ddd}
-.container{display:flex;gap:12px;padding:12px;flex-wrap:wrap}
-.window{width:49%;background:#0b0b0b;border:1px solid #222;border-radius:6px;overflow:hidden}
-.full{width:100%}
-.titlebar{background:#0f0f0f;padding:6px 10px;font-size:12px;color:#888;border-bottom:1px solid #222}
-.terminal{height:260px;overflow-y:auto;padding:12px;font-size:13px}
-.line{margin:2px 0;opacity:0;transform:translateY(6px);animation:smoothIn .25s ease forwards}
-@keyframes smoothIn{to{opacity:1;transform:translateY(0)}}
-.green{color:#00ff99}
-.red{color:#ff4d4d}
-.gray{color:#777}
-.gold{color:#ffd700;text-shadow:0 0 6px #ffd700}
-input{width:100%;padding:10px;margin-bottom:8px;background:#050505;border:1px solid #222;color:#00ff99;outline:none}
-.switch{display:flex;justify-content:space-between;align-items:center;margin:6px 0;font-size:12px}
-.switch input{display:none}
-.slider{width:32px;height:16px;background:#222;border-radius:20px;position:relative}
-.slider::before{content:"";position:absolute;width:12px;height:12px;background:#777;border-radius:50%;top:2px;left:2px}
-.switch input:checked + .slider{background:#00ff99}
-.switch input:checked + .slider::before{transform:translateX(16px);background:#000}
-button{width:100%;padding:9px;background:#111;color:#fff;border:1px solid #222;cursor:pointer}
-button:hover{background:#00ff99;color:#000;box-shadow:0 0 10px #00ff99}
-.controls{padding:12px;border-top:1px solid #111}
-.stats{font-size:12px;padding:6px;background:#050505;color:#00ff99}
-.footer{width:100%;text-align:center;font-size:12px;padding:10px;opacity:.6}
-.footer a{color:#00ff99;text-decoration:none}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Chat Pro</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="container">
-
-<div class="window">
-<div class="titlebar">C:\\generator.exe</div>
-<div class="terminal" id="genTerm"></div>
-<div class="controls">
-<input id="genAmount" placeholder="amount">
-<input id="genLength" placeholder="length">
-<label class="switch">numbers<input type="checkbox" id="optNumbers"><span class="slider"></span></label>
-<label class="switch">underscore<input type="checkbox" id="optUnd"><span class="slider"></span></label>
-<label class="switch">leetspeak<input type="checkbox" id="optLeet"><span class="slider"></span></label>
-<button onclick="runGen()">run</button>
-</div>
+<!-- LOGIN -->
+<div id="login">
+  <h1>AI Chat</h1>
+  <p style="opacity:0.6; margin-bottom:20px;">
+    Minimal AI assistant
+  </p>
+  <button onclick="loginGoogle()">Login con Google</button>
 </div>
 
-<div class="window">
-<div class="titlebar">C:\\checker.exe</div>
-<div class="terminal" id="checkTerm"></div>
-<div class="stats" id="statsBar">hits: 0 | fails: 0 | rate: 0%</div>
+<!-- CHAT -->
+<div id="chat" class="hidden">
 
-<div class="controls">
-<input id="checkList" placeholder="user1,user2">
-<input id="webhookUrl" placeholder="discord webhook">
+  <header>
+    <h3>AI Chat</h3>
+    <button onclick="logout()">Salir</button>
+  </header>
 
-<label class="switch">only OG<input type="checkbox" id="filterOG"><span class="slider"></span></label>
-<label class="switch">no numbers<input type="checkbox" id="filterNoNum"><span class="slider"></span></label>
-<label class="switch">no underscore<input type="checkbox" id="filterNoUnd"><span class="slider"></span></label>
+  <main id="messages"></main>
 
-<button id="checkBtn" onclick="runCheck()">check</button>
-<button onclick="stopCheck()">stop</button>
-<button onclick="downloadValid()">save valid</button>
-</div>
-</div>
-
-<div class="window full">
-<div class="titlebar">C:\\top10.exe</div>
-<div class="terminal" id="topTerm"></div>
-</div>
+  <footer>
+    <input id="input" placeholder="Escribe algo..." />
+    <button onclick="send()">Enviar</button>
+  </footer>
 
 </div>
 
-<div class="footer">
-<a href="https://discord.gg/5TNkqETC2v" target="_blank">join discord</a>
-</div>
-
-<script>
-let hits=0,fails=0,checking=false,stopRequested=false;
-let validUsers=[],topUsers=[];
-
-function log(term,text,cls=""){
-  const el=document.getElementById(term);
-  const div=document.createElement("div");
-  div.className="line "+cls;
-  div.textContent=text;
-  el.appendChild(div);
-  el.scrollTop=el.scrollHeight;
-}
-
-function applyLeet(str){
-  return str.replace(/a/g,"4").replace(/e/g,"3").replace(/o/g,"0");
-}
-
-function randomName(len){
-  let chars="abcdefghijklmnopqrstuvwxyz";
-  if(optNumbers.checked) chars+="0123456789";
-  if(optUnd.checked) chars+="_";
-  let name="";
-  for(let i=0;i<len;i++){
-    name+=chars[Math.floor(Math.random()*chars.length)];
-  }
-  if(optLeet.checked) name=applyLeet(name);
-  return name;
-}
-
-async function runGen(){
-  genTerm.innerHTML="";
-  let amount=parseInt(genAmount.value)||10;
-  let len=parseInt(genLength.value)||5;
-  let list=[];
-  for(let i=0;i<amount;i++){
-    let u=randomName(len);
-    list.push(u);
-    log("genTerm",u);
-    await new Promise(r=>setTimeout(r,40));
-  }
-  checkList.value=list.join(",");
-}
-
-function scoreUser(u){
-  let s=0;
-  if(u.length<=3)s+=5;
-  else if(u.length==4)s+=4;
-  else if(u.length==5)s+=3;
-  if(!/[0-9]/.test(u))s++;
-  if(!u.includes("_"))s++;
-  return s;
-}
-
-function updateTop(user){
-  topUsers.push(user);
-  topUsers.sort((a,b)=>scoreUser(b)-scoreUser(a));
-  topUsers=topUsers.slice(0,10);
-  topTerm.innerHTML="";
-  topUsers.forEach(u=>{
-    const div=document.createElement("div");
-    div.className="line gold";
-    div.textContent=u;
-    topTerm.appendChild(div);
-  });
-}
-
-function passFilters(u){
-  if(filterOG.checked && (u.length>5 || /[0-9_]/.test(u))) return false;
-  if(filterNoNum.checked && /[0-9]/.test(u)) return false;
-  if(filterNoUnd.checked && u.includes("_")) return false;
-  return true;
-}
-
-/* FIXED CHECK */
-async function robloxCheck(u){
-  try{
-    const res=await fetch("/api/check",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({username:u})
-    });
-
-    if(!res.ok) return 1;
-
-    const data=await res.json();
-    return data?.available ? 0 : 1;
-
-  }catch{
-    return 1;
-  }
-}
-
-/* FIXED WEBHOOK (IMPORTANT CHANGE) */
-async function sendWebhook(user,score){
-  const url=document.getElementById("webhookUrl").value;
-  if(!url) return;
-
-  try{
-    await fetch("/api/webhook-send",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({user,score,url})
-    });
-  }catch{}
-}
-
-function stopCheck(){ stopRequested=true; }
-
-async function runCheck(){
-  if(checking) return;
-  checking=true;
-  stopRequested=false;
-  document.getElementById("checkBtn").disabled=true;
-
-  let list=checkList.value.split(",");
-
-  for(let user of list){
-    if(stopRequested) break;
-
-    user=user.trim();
-    if(!user||!passFilters(user)) continue;
-
-    log("checkTerm","checking "+user+"...","gray");
-
-    let res=await robloxCheck(user);
-
-    if(res===0){
-      hits++;
-      validUsers.push(user);
-      updateTop(user);
-
-      let score=scoreUser(user);
-      sendWebhook(user,score);
-
-      let div=document.createElement("div");
-      div.className="line "+(score>=6?"gold":"green");
-
-      let link=document.createElement("span");
-      link.textContent="["+"★".repeat(score)+"] "+user;
-      link.style.cursor="pointer";
-
-      link.onclick=()=>{
-        navigator.clipboard.writeText(user);
-        link.textContent="copied: "+user;
-        setTimeout(()=>{
-          link.textContent="["+"★".repeat(score)+"] "+user;
-        },800);
-      };
-
-      div.appendChild(link);
-      checkTerm.appendChild(div);
-
-    }else{
-      fails++;
-      log("checkTerm","[-] "+user,"red");
-    }
-
-    let total=hits+fails;
-    statsBar.textContent="hits: "+hits+" | fails: "+fails+" | rate: "+(total?((hits/total)*100).toFixed(1):0)+"%";
-
-    await new Promise(r=>setTimeout(r,200));
-  }
-
-  checking=false;
-  document.getElementById("checkBtn").disabled=false;
-}
-
-function downloadValid(){
-  const blob=new Blob([validUsers.join("\n")]);
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="valid.txt";
-  a.click();
-}
-</script>
-
+<script type="module" src="app.js"></script>
 </body>
 </html>

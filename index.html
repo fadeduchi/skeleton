@@ -3,37 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Chat Pro</title>
-  <link rel="stylesheet" href="style.css">
+  <title>AI Chat</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    #chat {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .user {
+      text-align: right;
+      margin: 8px;
+      color: #4fc3f7;
+    }
+
+    .bot {
+      text-align: left;
+      margin: 8px;
+      color: #e0e0e0;
+    }
+
+    .inputBox {
+      display: flex;
+      padding: 10px;
+      background: #111;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      background: #222;
+      color: white;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background: #4fc3f7;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #29b6f6;
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- LOGIN -->
-<div id="login">
-  <h1>AI Chat</h1>
-  <p style="opacity:0.6; margin-bottom:20px;">
-    Minimal AI assistant
-  </p>
-  <button onclick="loginGoogle()">Login con Google</button>
-</div>
+  <div class="container">
 
-<!-- CHAT -->
-<div id="chat" class="hidden">
+    <!-- CHAT -->
+    <div id="chat"></div>
 
-  <header>
-    <h3>AI Chat</h3>
-    <button onclick="logout()">Salir</button>
-  </header>
+    <!-- INPUT -->
+    <div class="inputBox">
+      <input id="input" placeholder="Escribe tu mensaje..." />
+      <button id="send">Enviar</button>
+    </div>
 
-  <main id="messages"></main>
+  </div>
 
-  <footer>
-    <input id="input" placeholder="Escribe algo..." />
-    <button onclick="send()">Enviar</button>
-  </footer>
-
-</div>
-
-<script type="module" src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

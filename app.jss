@@ -1,37 +1,29 @@
-// ==============================
-// USER LOCAL (sin login)
-// ==============================
+// USER ID SIMPLE
 const userId = crypto.randomUUID();
-console.log("User ID:", userId);
 
-// ==============================
-// ELEMENTOS UI
-// ==============================
-const chatBox = document.getElementById("chat");
+// ELEMENTOS (ESTO era tu error más probable)
+const chat = document.getElementById("chat");
 const input = document.getElementById("input");
-const sendBtn = document.getElementById("send");
+const send = document.getElementById("send");
 
-// ==============================
-// FUNCION: AGREGAR MENSAJE A UI
-// ==============================
-function addMessage(role, text) {
-  const msg = document.createElement("div");
-  msg.className = role;
-  msg.textContent = text;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
+// DEBUG
+console.log("JS cargado");
+
+// ADD MESSAGE
+function add(role, text) {
+  const div = document.createElement("div");
+  div.className = "msg " + role;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
-// ==============================
-// FUNCION: ENVIAR MENSAJE A API
-// ==============================
-async function sendMessage(message) {
+// SEND TO API
+async function sendToAI(message) {
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId,
         message
@@ -39,36 +31,32 @@ async function sendMessage(message) {
     });
 
     const data = await res.json();
-    return data.reply || data.response || "No response";
+    return data.reply || "Sin respuesta";
   } catch (err) {
     console.error(err);
-    return "Error connecting to AI";
+    return "Error en la conexión";
   }
 }
 
-// ==============================
-// EVENTO BOTON ENVIAR
-// ==============================
-sendBtn.addEventListener("click", async () => {
-  const message = input.value.trim();
-  if (!message) return;
+// MAIN SEND
+async function handleSend() {
+  const msg = input.value.trim();
+  if (!msg) return;
 
-  addMessage("user", message);
+  add("user", msg);
   input.value = "";
 
-  addMessage("bot", "Thinking...");
+  add("bot", "Pensando...");
 
-  const response = await sendMessage(message);
+  const reply = await sendToAI(msg);
 
-  // reemplazar "Thinking..."
-  chatBox.lastChild.textContent = response;
-});
+  chat.lastChild.textContent = reply;
+}
 
-// ==============================
-// ENTER PARA ENVIAR
-// ==============================
+// BUTTON
+send.addEventListener("click", handleSend);
+
+// ENTER KEY
 input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    sendBtn.click();
-  }
+  if (e.key === "Enter") handleSend();
 });

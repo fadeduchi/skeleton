@@ -13,6 +13,8 @@ export default async function handler(req, res) {
       method: "POST",
       headers: {
         "Authorization": "Bearer sk-ukfyfcRRfZryu3zdQhoVcS9bEaGw0E6D3ZJkMWYW1BFeEMTm",
+        "HTTP-Referer": "https://cestlamore.site",
+        "X-Title": "CestLaMoreAI",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -20,27 +22,39 @@ export default async function handler(req, res) {
         messages: [
           {
             role: "system",
-            content: "Reply in the same language as the user. Be short, direct and natural. Use slang depending on the language and country style naturally."
+            content: "You are a modern AI assistant similar to ChatGPT. Always reply in the same language as the user automatically. Keep replies short, direct and natural. Use slang and texting style depending on the language naturally."
           },
           {
             role: "user",
             content: message
           }
-        ]
+        ],
+        temperature: 0.8,
+        max_tokens: 300
       })
     });
 
     const data = await response.json();
 
-    const reply = data.choices?.[0]?.message?.content || "No response";
+    console.log(data);
 
-    return res.status(200).json({ reply });
+    const reply = data?.choices?.[0]?.message?.content;
+
+    if (!reply) {
+      return res.status(500).json({
+        reply: "AI error"
+      });
+    }
+
+    return res.status(200).json({
+      reply
+    });
 
   } catch (err) {
     console.error(err);
 
     return res.status(500).json({
-      error: "Server error"
+      reply: "Server error"
     });
   }
 }

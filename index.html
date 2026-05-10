@@ -1,4 +1,125 @@
 <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>C'est La More AI</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0f0f0f;
+      color: white;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .layout {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: #111;
+      border-right: 1px solid #222;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .new-chat {
+      background: #2563eb;
+      border: none;
+      color: white;
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .new-chat:hover {
+      background: #1d4ed8;
+    }
+
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 20px 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message-row {
+      width: 100%;
+      display: flex;
+    }
+
+    .user-row {
+      justify-content: flex-end;
+    }
+
+    .bot-row {
+      justify-content: flex-start;
+    }
+
+    .message {
+      max-width: 800px;
+      padding: 16px;
+      border-radius: 16px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 15px;
+    }
+
+    .user {
+      background: #2563eb;
+      color: white;
+    }
+
+    .bot {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+    }
+
+    .input-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 260px;
+      right: 0;
+      padding: 20px;
+      background: linear-gradient(to top, #0f0f0f 80%, transparent);
+    }
+
+    .input-box {
+      max-width: 900px;
+      margin: auto;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 18px;
+      display: flex;
       align-items: center;
       padding: 10px;
     }
@@ -39,12 +160,14 @@
     }
   </style>
 </head>
+
 <body>
 
 <div class="layout">
 
   <div class="sidebar">
     <div class="logo">C'est La More</div>
+
     <button class="new-chat" onclick="location.reload()">
       + Nuevo chat
     </button>
@@ -64,5 +187,6 @@
 </div>
 
 <script src="app.js"></script>
+
 </body>
 </html>

@@ -1,27 +1,46 @@
 export default async function handler(req, res) {
+
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      error: "Method not allowed"
+    });
   }
 
-  const { messages } = req.body;
-
   try {
+    const { message } = req.body;
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.AGENT_ROUTER_KEY}`,
+        "Authorization": "Bearer sk-ukfyfcRRfZryu3zdQhoVcS9bEaGw0E6D3ZJkMWYW1BFeEMTm",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
-        messages
+        messages: [
+          {
+            role: "system",
+            content: "Reply in the same language as the user. Be short, direct and natural. Use slang depending on the language and country style naturally."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ]
       })
     });
 
     const data = await response.json();
-    res.status(200).json(data);
+
+    const reply = data.choices?.[0]?.message?.content || "No response";
+
+    return res.status(200).json({ reply });
 
   } catch (err) {
-    res.status(500).json({ error: "AI error" });
+    console.error(err);
+
+    return res.status(500).json({
+      error: "Server error"
+    });
   }
 }

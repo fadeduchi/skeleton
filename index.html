@@ -1,74 +1,901 @@
 <!DOCTYPE html>
-      max-width: 900px;
-      margin: auto;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      padding: 10px;
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>faded</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+}
+
+body{
+    font-family:Inter,Arial,sans-serif;
+    background:#000;
+    color:white;
+    overflow:hidden;
+    cursor:default;
+}
+
+/* =================================
+   FONDO
+================================= */
+
+.background{
+    position:fixed;
+    inset:0;
+    background:#000;
+    overflow:hidden;
+}
+
+.glow{
+    position:absolute;
+
+    width:600px;
+    height:600px;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    background:rgba(255,255,255,.035);
+
+    filter:blur(170px);
+
+    animation:glow 12s ease-in-out infinite alternate;
+}
+
+@keyframes glow{
+
+    0%{
+        transform:translate(-55%,-50%) scale(.85);
+        opacity:.3;
     }
 
-    #input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: white;
-      font-size: 15px;
-      padding: 10px;
+    50%{
+        opacity:.55;
     }
 
-    #send {
-      background: #2563eb;
-      border: none;
-      color: white;
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 18px;
+    100%{
+        transform:translate(-45%,-50%) scale(1.1);
+        opacity:.35;
     }
 
-    #send:hover {
-      background: #1d4ed8;
+}
+
+
+/* =================================
+   GRAIN
+================================= */
+
+.grain{
+    position:absolute;
+    inset:-100%;
+
+    opacity:.045;
+
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+
+    animation:grain .25s steps(2) infinite;
+
+    pointer-events:none;
+}
+
+@keyframes grain{
+
+    0%{transform:translate(0,0)}
+    25%{transform:translate(2%,-3%)}
+    50%{transform:translate(-3%,2%)}
+    75%{transform:translate(3%,3%)}
+    100%{transform:translate(-2%,-2%)}
+
+}
+
+
+/* =================================
+   ENTER SCREEN
+================================= */
+
+#enterScreen{
+
+    position:fixed;
+    inset:0;
+
+    z-index:100;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#000;
+
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
+
+}
+
+#enterScreen.hidden{
+
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+
+}
+
+
+/* texto */
+
+.enter{
+
+    color:#555;
+
+    font-size:11px;
+
+    letter-spacing:4px;
+
+    text-transform:uppercase;
+
+    cursor:pointer;
+
+    user-select:none;
+
+    transition:
+        color .3s ease,
+        letter-spacing .3s ease,
+        transform .3s ease;
+
+    animation:enterPulse 2s ease-in-out infinite;
+
+}
+
+.enter:hover{
+
+    color:#aaa;
+
+    letter-spacing:6px;
+
+    transform:scale(1.04);
+
+}
+
+@keyframes enterPulse{
+
+    0%,100%{
+        opacity:.45;
     }
 
-    @media (max-width: 800px) {
-      .sidebar {
-        display: none;
-      }
-
-      .input-wrapper {
-        left: 0;
-      }
+    50%{
+        opacity:1;
     }
-  </style>
+
+}
+
+
+/* =================================
+   PROFILE
+================================= */
+
+.page{
+
+    position:relative;
+
+    z-index:5;
+
+    width:100%;
+    height:100%;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    opacity:0;
+
+    transform:scale(.98);
+
+    transition:
+        opacity 1.2s ease,
+        transform 1.2s ease;
+
+}
+
+.page.show{
+
+    opacity:1;
+
+    transform:scale(1);
+
+}
+
+
+.profile{
+
+    width:460px;
+
+    text-align:center;
+
+}
+
+
+/* =================================
+   AVATAR
+================================= */
+
+.avatar-wrapper{
+
+    position:relative;
+
+    width:105px;
+    height:105px;
+
+    margin:0 auto 24px;
+
+}
+
+.avatar{
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    border:1px solid rgba(255,255,255,.1);
+
+    background:#080808;
+
+    box-shadow:
+        0 0 0 7px rgba(255,255,255,.012),
+        0 0 70px rgba(255,255,255,.06);
+
+    transition:.4s ease;
+
+}
+
+.avatar:hover{
+
+    transform:scale(1.06);
+
+    box-shadow:
+        0 0 0 7px rgba(255,255,255,.025),
+        0 0 90px rgba(255,255,255,.1);
+
+}
+
+
+/* online */
+
+.online{
+
+    position:absolute;
+
+    right:3px;
+    bottom:5px;
+
+    width:15px;
+    height:15px;
+
+    border-radius:50%;
+
+    background:#000;
+
+    border:3px solid #000;
+
+}
+
+.online::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:2px;
+
+    border-radius:50%;
+
+    background:#aaa;
+
+    box-shadow:
+        0 0 10px rgba(255,255,255,.5);
+
+}
+
+
+/* =================================
+   USERNAME
+================================= */
+
+.username{
+
+    min-height:65px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+#username{
+
+    font-size:47px;
+
+    font-weight:800;
+
+    letter-spacing:-3px;
+
+    text-shadow:
+        0 0 30px rgba(255,255,255,.08);
+
+}
+
+.cursor{
+
+    margin-left:4px;
+
+    font-size:45px;
+
+    color:#444;
+
+    animation:blink .8s infinite;
+
+}
+
+@keyframes blink{
+
+    0%,45%{
+        opacity:1;
+    }
+
+    50%,100%{
+        opacity:0;
+    }
+
+}
+
+
+/* =================================
+   BIO
+================================= */
+
+.bio{
+
+    margin-top:10px;
+
+    color:#626262;
+
+    font-size:13px;
+
+    line-height:1.8;
+
+}
+
+
+/* =================================
+   TAG
+================================= */
+
+.tag{
+
+    display:inline-flex;
+
+    margin-top:18px;
+
+    padding:6px 11px;
+
+    border-radius:100px;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    color:#484848;
+
+    font-size:9px;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+
+}
+
+
+/* =================================
+   LINKS
+================================= */
+
+.links{
+
+    margin-top:27px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:8px;
+
+}
+
+.link{
+
+    height:35px;
+
+    min-width:80px;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    padding:0 13px;
+
+    border-radius:8px;
+
+    border:1px solid rgba(255,255,255,.05);
+
+    background:rgba(255,255,255,.01);
+
+    color:#555;
+
+    text-decoration:none;
+
+    font-size:11px;
+
+    transition:.3s ease;
+
+}
+
+.link:hover{
+
+    color:#ddd;
+
+    background:rgba(255,255,255,.04);
+
+    border-color:rgba(255,255,255,.12);
+
+    transform:translateY(-3px);
+
+}
+
+
+/* =================================
+   BOTTOM
+================================= */
+
+.bottom{
+
+    position:fixed;
+
+    bottom:24px;
+
+    left:0;
+    right:0;
+
+    text-align:center;
+
+    color:#292929;
+
+    font-size:9px;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+
+}
+
+
+/* =================================
+   CORNERS
+================================= */
+
+.corner{
+
+    position:fixed;
+
+    width:32px;
+    height:32px;
+
+    opacity:.22;
+
+}
+
+.corner::before,
+.corner::after{
+
+    content:"";
+
+    position:absolute;
+
+    background:#777;
+
+}
+
+.corner::before{
+
+    width:32px;
+    height:1px;
+
+}
+
+.corner::after{
+
+    width:1px;
+    height:32px;
+
+}
+
+.tl{
+    top:25px;
+    left:25px;
+}
+
+.tr{
+    top:25px;
+    right:25px;
+    transform:rotate(90deg);
+}
+
+.bl{
+    bottom:25px;
+    left:25px;
+    transform:rotate(-90deg);
+}
+
+.br{
+    bottom:25px;
+    right:25px;
+    transform:rotate(180deg);
+}
+
+
+/* =================================
+   MOBILE
+================================= */
+
+@media(max-width:600px){
+
+    .profile{
+        width:90%;
+    }
+
+    .avatar-wrapper{
+        width:90px;
+        height:90px;
+    }
+
+    #username{
+        font-size:38px;
+    }
+
+    .cursor{
+        font-size:37px;
+    }
+
+    .links{
+        flex-wrap:wrap;
+    }
+
+}
+
+</style>
 </head>
+
+
 <body>
 
-<div class="layout">
 
-  <div class="sidebar">
-    <div class="logo">C'est La More</div>
-    <button class="new-chat" onclick="location.reload()">
-      + Nuevo chat
-    </button>
-  </div>
+<!-- =================================
+     BACKGROUND
+================================= -->
 
-  <div class="chat-area">
-    <div id="chat"></div>
-  </div>
+<div class="background">
+
+    <div class="glow"></div>
+
+    <div class="grain"></div>
 
 </div>
 
-<div class="input-wrapper">
-  <div class="input-box">
-    <input id="input" placeholder="Pregunta lo que quieras..." />
-    <button id="send">↑</button>
-  </div>
+
+<!-- =================================
+     ENTER
+================================= -->
+
+<div id="enterScreen">
+
+    <div class="enter" id="enterButton">
+        click to enter
+    </div>
+
 </div>
 
-<script src="app.js"></script>
+
+<!-- =================================
+     DECORATION
+================================= -->
+
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+
+<!-- =================================
+     PROFILE
+================================= -->
+
+<main class="page" id="profile">
+
+    <div class="profile">
+
+
+        <!-- FOTO -->
+
+        <div class="avatar-wrapper">
+
+            <img
+                class="avatar"
+                src="foto.jpg"
+                alt="avatar"
+            >
+
+            <span class="online"></span>
+
+        </div>
+
+
+        <!-- USERNAME -->
+
+        <div class="username">
+
+            <span id="username"></span>
+
+            <span class="cursor">_</span>
+
+        </div>
+
+
+        <!-- BIO -->
+
+        <p class="bio">
+
+            checking usernames
+            <br>
+            
+
+        </p>
+
+
+        <!-- TAG -->
+
+        <div class="tag">
+            also @fur0r
+        </div>
+
+
+        <!-- LINKS -->
+
+        <div class="links">
+
+            <a
+                class="link"
+                href="https://www.roblox.com/users/39342981/profile"
+                target="_blank"
+            >
+                roblox
+            </a>
+
+            <a
+                class="link"
+                href="https://t.me/lastiman"
+                target="_blank"
+            >
+                telegram
+            </a>
+
+            <a
+                class="link"
+                href="https://www.tiktok.com/@MS4wLjABAAAANhnq470Oc4-n4xY1s5VmNFmDHL7T73BfEpUkLGM1MnNiq8ia3tSIAsxvP1rZoiEq"
+                target="_blank"
+            >
+                tiktok
+            </a>
+
+        </div>
+
+
+    </div>
+
+</main>
+
+
+<!-- =================================
+     BOTTOM
+================================= -->
+
+<div class="bottom">
+    life
+</div>
+
+
+<!-- =================================
+     MUSIC
+================================= -->
+
+<audio id="music" loop>
+
+    <source
+        src="tu-cancion.mp3"
+        type="audio/mpeg"
+    >
+
+</audio>
+
+
+<script>
+
+
+/* =================================
+   ENTER + MUSIC
+================================= */
+
+const enterScreen =
+    document.getElementById("enterScreen");
+
+const enterButton =
+    document.getElementById("enterButton");
+
+const profile =
+    document.getElementById("profile");
+
+const music =
+    document.getElementById("music");
+
+
+enterButton.addEventListener("click",function(){
+
+    /* empezar música */
+
+    music.volume = 0.3;
+
+    music.play().catch(function(error){
+
+        console.log("music error:",error);
+
+    });
+
+
+    /* sacar pantalla */
+
+    enterScreen.classList.add("hidden");
+
+
+    /* mostrar perfil */
+
+    setTimeout(function(){
+
+        profile.classList.add("show");
+
+    },300);
+
+});
+
+
+/* =================================
+   TYPEWRITER
+================================= */
+
+const names = [
+
+    " @funny_hamster_28",
+    " faded",
+    " adiosvida.online"
+
+];
+
+let nameIndex = 0;
+let charIndex = 0;
+let deleting = false;
+
+const username =
+    document.getElementById("username");
+
+
+function type(){
+
+    const current =
+        names[nameIndex];
+
+
+    if(!deleting){
+
+        charIndex++;
+
+        username.textContent =
+            current.substring(
+                0,
+                charIndex
+            );
+
+
+        if(charIndex >= current.length){
+
+            deleting = true;
+
+            setTimeout(
+                type,
+                1400
+            );
+
+            return;
+
+        }
+
+
+        setTimeout(
+            type,
+            70 + Math.random() * 40
+        );
+
+
+    }else{
+
+        charIndex--;
+
+        username.textContent =
+            current.substring(
+                0,
+                charIndex
+            );
+
+
+        if(charIndex <= 0){
+
+            deleting = false;
+
+            nameIndex =
+                (nameIndex + 1)
+                % names.length;
+
+            setTimeout(
+                type,
+                500
+            );
+
+            return;
+
+        }
+
+
+        setTimeout(
+            type,
+            40
+        );
+
+    }
+
+}
+
+
+type();
+
+</script>
+
 </body>
 </html>
